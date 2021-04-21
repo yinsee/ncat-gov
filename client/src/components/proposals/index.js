@@ -79,7 +79,7 @@ function Proposals({ address }) {
   const [hasMore, setHasMore] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('on-going');
+  const [statusFilter, setStatusFilter] = useState('PENDING');
 
   useEffect(() => {
     fetchData();
@@ -89,10 +89,7 @@ function Proposals({ address }) {
   useEffect(() => {
     setVisibleProposals(
       proposals.filter((p) => {
-        if (statusFilter == 'on-going')
-          return (p.state == 'PENDING');
-        else
-          return (p.state !== 'PENDING');
+        return (p.state == statusFilter);
       }));
   }, [proposals, statusFilter]);
 
@@ -165,7 +162,7 @@ function Proposals({ address }) {
   const saveProposal = async (proposal) => {
     try {
       await post(`${api.proposals}`, proposal);
-      setStatusFilter('on-going');
+      setStatusFilter('ACTIVE');
       setOpenSuccess(true)
     } catch (error) {
       setErr(error.message);
@@ -184,15 +181,16 @@ function Proposals({ address }) {
         </Box>
         <Box style={{ 'marginLeft': '1em' }}>
           <ContextMenu>
-            <ContextMenuItem onClick={() => { setStatusFilter('on-going'); }}>On-going</ContextMenuItem>
-            <ContextMenuItem onClick={() => { setStatusFilter('ended'); }}>Ended</ContextMenuItem>
+            <ContextMenuItem onClick={() => { setStatusFilter('PENDING'); }}>Pending</ContextMenuItem>
+            <ContextMenuItem onClick={() => { setStatusFilter('ACCEPTED'); }}>Accepted</ContextMenuItem>
+            <ContextMenuItem onClick={() => { setStatusFilter('REJECTED'); }}>Rejected</ContextMenuItem>
           </ContextMenu>
         </Box>
       </Grid>
 
       <Divider style={{ 'margin': '1em 0' }}></Divider>
       <Typography variant="h6" className={classes.header} style={{ textAlign: 'center', textTransform: 'capitalize' }}>
-        {statusFilter} Proposals
+        {statusFilter.toLowerCase()} Proposals
       </Typography>
 
       <InfiniteScroll
