@@ -2,7 +2,7 @@
 const { UniqueConstraintError } = require("sequelize");
 const createError = require("http-errors");
 const { proposals } = require("../models");
-const MAX_PER_PAGE = 10;
+const MAX_PER_PAGE = 50;
 
 module.exports.save = (fields, transaction) => {
   return proposals.create(fields, transaction).catch((e) => {

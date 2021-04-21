@@ -74,21 +74,27 @@ function Proposals({ address }) {
     content: "",
   });
   const [proposals, setProposals] = useState([]);
+  const [visibleProposals, setVisibleProposals] = useState([]);
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
-  const [statusFilter, _setStatusFilter] = useState('on-going')
-
-  const setStatusFilter = (v) => {
-    _setStatusFilter(v);
-
-  };
+  const [statusFilter, setStatusFilter] = useState('on-going');
 
   useEffect(() => {
     fetchData();
     setInitialWidth(componentRef.current ? componentRef.current.offsetWidth : 0)
   }, []);
+
+  useEffect(() => {
+    setVisibleProposals(
+      proposals.filter((p) => {
+        if (statusFilter == 'on-going')
+          return (p.state == 'PENDING');
+        else
+          return (p.state !== 'PENDING');
+      }));
+  }, [proposals, statusFilter]);
 
   const handleChange = (attr, e) => {
     setNewProposal({ ...newProposal, [`${attr}`]: e.target.value });
@@ -146,6 +152,7 @@ function Proposals({ address }) {
       if (data.proposals.length === 0) {
         setHasMore(false);
       } else {
+        setHasMore(true);
         setProposals(proposals.concat(data.proposals));
         setPage(page + 1);
       }
@@ -172,10 +179,10 @@ function Proposals({ address }) {
     <div className="Proposals" ref={componentRef}>
 
       <Grid container justify="flex-end" alignItems="center">
-        <Box style={{ 'margin-left': '1em' }}>
+        <Box style={{ 'marginLeft': '1em' }}>
           <NewProposalModal address={address} saveProposal={saveProposal} />
         </Box>
-        <Box style={{ 'margin-left': '1em' }}>
+        <Box style={{ 'marginLeft': '1em' }}>
           <ContextMenu>
             <ContextMenuItem onClick={() => { setStatusFilter('on-going'); }}>On-going</ContextMenuItem>
             <ContextMenuItem onClick={() => { setStatusFilter('ended'); }}>Ended</ContextMenuItem>
@@ -189,24 +196,19 @@ function Proposals({ address }) {
       </Typography>
 
       <InfiniteScroll
-        dataLength={proposals.length}
+        dataLength={visibleProposals.length}
         next={fetchData}
-        hasMore={hasMore}
-        loader={<CircularProgress />}
+        hasMore={true}
+        // loader={<CircularProgress />}
         style={{ height: "default", overflow: "hidden" }}
-        endMessage={
-          <Typography style={{ color: "#64618B", margin: "1em 0", textAlign: "center" }} gutterBottom>
-            No more proposals.
-          </Typography>
-        }
+      // endMessage={
+      //   <Typography style={{ color: "#64618B", margin: "1em 0", textAlign: "center" }} gutterBottom>
+      //     No more proposals.
+      // </Typography>
+      // }
       >
         <GridList cellHeight={"auto"} style={{ overflow: "hidden" }} cols={getGridListCols()}>
-          {proposals.filter((p) => {
-            if (statusFilter == 'on-going')
-              return (p.state == 'PENDING');
-            else
-              return (p.state !== 'PENDING');
-          }).map((proposal, index) => (
+          {visibleProposals.map((proposal, index) => (
             <GridListTile style={{ padding: "10px", overflow: "visible" }} key={index} cols={1}>
               <Proposal
                 key={index}
@@ -218,8 +220,13 @@ function Proposals({ address }) {
             </GridListTile>
           ))}
         </GridList>
-
       </InfiniteScroll>
+
+      {visibleProposals.length == 0 &&
+        <Typography style={{ color: "#64618B", margin: "1em 0", textAlign: "center" }} gutterBottom>
+          No proposals.
+        </Typography>
+      }
 
       <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={6000} onClose={handleCloseSuccess}>
         <Alert onClose={handleCloseSuccess} severity="success">
