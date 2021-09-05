@@ -19,20 +19,29 @@ const findAllByPage = (page) => repository.findAllByPage(page);
 const save = async (proposal) => {
   const author = proposal.author;
   assertNotBlackListed(author);
-  const t = await sequelize.transaction();
+
+  let user;
+  let t = await sequelize.transaction();
   try {
-    let user = await usersRepository.findByAddress(author, t, true);
+    user = await usersRepository.findByAddress(author, t, true);
     if (!user) {
       user = await usersRepository.save({ address: author }, t);
     }
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+
+  t = await sequelize.transaction();
+  try {
     const canPropose = await user.canPropose();
     if (!canPropose) {
       throw createError(
         400,
-        `You should own at least ${MIN_PROPOSAL_BALANCE.div(
-          DECIMALS
-        ).toString()} NCAT to create a proposal`
+        `You should own at least ${MIN_PROPOSAL_BALANCE.div(10 ** DECIMALS).toString()} APE-X to create a proposal`
       );
+      return;
     }
     await repository.save(
       {

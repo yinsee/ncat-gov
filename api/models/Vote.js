@@ -3,7 +3,7 @@ const { Model, DataTypes } = require("sequelize");
 
 module.exports = {
   model: (sequelize) => {
-    class Vote extends Model {}
+    class Vote extends Model { }
     Vote.init(
       {
         id: {

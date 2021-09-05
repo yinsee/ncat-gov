@@ -14,19 +14,27 @@ const { NCAT_PER_VOTE } = require("../models/User");
 
 const vote = async (voter, proposalId, support) => {
   assertNotBlackListed(voter);
-  const t = await sequelize.transaction();
+
+  let user;
+  let t = await sequelize.transaction();
   try {
-    let user = await usersRepository.findByAddress(voter, t, true);
+    user = await usersRepository.findByAddress(voter, t, true);
     if (!user) {
       user = await usersRepository.save({ address: voter }, t);
     }
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+
+  t = await sequelize.transaction();
+  try {
     const canVote = await user.canVote();
     if (!canVote) {
       throw createError(
         400,
-        `You should own at least ${NCAT_PER_VOTE.div(
-          DECIMALS
-        ).toString()} NCAT to vote`
+        `You should own at least ${NCAT_PER_VOTE.div(10 ** DECIMALS).toString()} NCAT to vote`
       );
     }
     const userWeight = await user.getVotes();

@@ -7,8 +7,9 @@ const { balanceOf } = require("../utils/blockchain");
 const BLACKLISTED_ADDRESSES = config.get("blockchain.blacklisted");
 const DECIMALS = config.get("blockchain.ncat.decimals");
 
-const NCAT_PER_VOTE = BigNumber.from(1).mul(DECIMALS);
-const MIN_PROPOSAL_BALANCE = BigNumber.from(100000000000).mul(DECIMALS); // 100,000,000,000 NCAT
+
+const NCAT_PER_VOTE = BigNumber.from(10 ** DECIMALS);
+const MIN_PROPOSAL_BALANCE = BigNumber.from(10 * 10 ** 9).mul(10 ** DECIMALS); // 10B NCAT
 
 module.exports = {
   NCAT_PER_VOTE,

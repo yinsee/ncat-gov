@@ -284,7 +284,7 @@ function NewProposalModal({ address, saveProposal }) {
             <div className="Proposals">
               <Typography variant="h6" className={classes.header} gutterBottom>
                 Create New Proposal:
-            </Typography>
+              </Typography>
               <div className="New-Proposal" noValidate autoComplete="off">
                 <TextInput
                   style={{ width: "95%", marginRight: "10px" }}
