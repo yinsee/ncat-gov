@@ -25,6 +25,7 @@ const models = {
   sequelize,
 };
 
+
 // models
 models.users = require("./User.js").model(sequelize);
 models.proposals = require("./Proposal.js").model(sequelize);

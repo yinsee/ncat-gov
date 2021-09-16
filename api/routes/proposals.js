@@ -23,10 +23,16 @@ router.post(
   "/",
   [
     check("title").isString(),
-    check("title").isLength({ max: 255 }),
+    check("title").isLength({ min: 20, max: 255 }),
     check("title").not().isEmpty({ ignore_whitespace: true }),
     check("content").isString(),
+    check("content").isLength({ min: 250 }),
     check("content").not().isEmpty({ ignore_whitespace: true }),
+    check("contact").isString(),
+    check("contact").isLength({ min: 3, max: 255 }),
+    check("contact").not().isEmpty({ ignore_whitespace: true }),
+    check("contact_type").isString(),
+    check("contact_type").not().isEmpty({ ignore_whitespace: true }),
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
@@ -40,6 +46,12 @@ router.post(
         author: req.user.address,
         title: req.body.title.trim(),
         content: req.body.content.trim(),
+        target_fund: req.body.target_fund,
+        require_fund: !!req.body.require_fund,
+        contact: req.body.contact?.trim(),
+        contact_type: req.body.contact_type?.trim(),
+        has_expire: !!req.body.has_expire,
+        expire_date: req.body.expire_date?.trim(),
       };
       await save(proposal);
       res.json({ message: "success", proposal });
@@ -71,8 +83,8 @@ router.get("/vote", async (req, res, next) => {
   if (!isValidAddress(voter)) next(createError(400, "Invalid address"));
 
   try {
-    await vote(voter, proposalId, support);
-    res.json({ message: "success" });
+    const proposal = await vote(voter, proposalId, support);
+    res.json({ message: "success", proposal });
   } catch (e) {
     next(e);
   }

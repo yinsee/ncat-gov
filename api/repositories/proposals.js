@@ -22,6 +22,9 @@ module.exports.findAllByPage = (page, transaction, lock = false) =>
 module.exports.findAll = (transaction, lock = false) =>
   proposals.findAll(transaction, lock);
 
+module.exports.findAllWhere = (query, transaction, lock = false) =>
+  proposals.findAll({ where: query }, transaction, lock);
+
 module.exports.findById = (id, transaction, lock = false) => {
   return proposals.findOne({ where: { id } }, transaction, lock);
 };

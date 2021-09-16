@@ -38,6 +38,15 @@ const vote = async (voter, proposalId, support) => {
       );
     }
     const userWeight = await user.getVotes();
+    const proposal = await proposalsRepository.findById(proposalId, t, true);
+    const now = new Date().getTime();
+    if (
+      proposal.state !== PROPOSAL_STATES.VOTING ||
+      now > proposal.expiration.getTime()
+    ) {
+      throw createError(400, "Voting has ended");
+    }
+
     await repository.save(
       {
         voterAddress: voter,
@@ -47,14 +56,7 @@ const vote = async (voter, proposalId, support) => {
       },
       t
     );
-    const proposal = await proposalsRepository.findById(proposalId, t, true);
-    const now = new Date().getTime();
-    if (
-      proposal.state !== PROPOSAL_STATES.PENDING ||
-      now > proposal.expiration.getTime()
-    ) {
-      throw createError(400, "Voting has ended");
-    }
+
     if (support) {
       await proposalsRepository.updateById(
         proposalId,
@@ -83,6 +85,9 @@ const vote = async (voter, proposalId, support) => {
     await t.rollback();
     throw error;
   }
+
+  t = await sequelize.transaction();
+  return await proposalsRepository.findById(proposalId, t, false);
 };
 
 module.exports = {
