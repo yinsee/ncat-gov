@@ -40,7 +40,7 @@ const save = async (proposal) => {
     if (!canPropose) {
       throw createError(
         400,
-        `You should own at least ${MIN_PROPOSAL_BALANCE.div(10 ** DECIMALS).toString()} APE-X to create a proposal`
+        `You should own at least ${MIN_PROPOSAL_BALANCE.div(10 ** DECIMALS).toString()} NCAT to create a proposal`
       );
       return;
     }
@@ -112,7 +112,7 @@ const updateStates = async () => {
 
         case PROPOSAL_STATES.FUNDING:
           // check due date & fund raised
-          if (proposal.raised_fund >= proposal.target_fund) {
+          if (Number(proposal.raised_fund) > (Number(proposal.target_fund))) {
             console.log('funded', proposal.raised_fund);
             return repository.updateById(proposal.id, { state: PROPOSAL_STATES.IMPLEMENTATION }, t);
           }

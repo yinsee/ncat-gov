@@ -88,6 +88,7 @@ module.exports = {
           type: DataTypes.ARRAY(DataTypes.STRING),
           defaultValue: [],
         },
+        fund_wallet_address: { type: DataTypes.STRING, allowNull: true },
       },
       { sequelize, modelName: "proposals" }
     );

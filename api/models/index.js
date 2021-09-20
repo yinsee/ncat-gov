@@ -30,5 +30,6 @@ const models = {
 models.users = require("./User.js").model(sequelize);
 models.proposals = require("./Proposal.js").model(sequelize);
 models.votes = require("./Vote.js").model(sequelize);
+models.funds = require("./Fund.js").model(sequelize);
 
 module.exports = models;
