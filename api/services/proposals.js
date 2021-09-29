@@ -65,6 +65,60 @@ const save = async (proposal) => {
   }
 };
 
+const update = async (address, proposalId, accepted) => {
+
+  // validate transaction
+  let user;
+  let t = await sequelize.transaction();
+  try {
+    user = await usersRepository.findByAddress(address, t, true);
+    if (!user || !user.isAdmin) {
+      throw 'Invalid user';
+    }
+  } catch (error) {
+    throw error;
+  }
+
+  t = await sequelize.transaction();
+  try {
+    const proposal = await repository.findById(proposalId, t, true);
+    if (proposal.state != PROPOSAL_STATES.RESEARCH && proposal.state != PROPOSAL_STATES.IMPLEMENTATION) {
+      throw `Cannot change when state is ${proposal.state}`;
+    }
+
+    // determine the new state
+    let newstate;
+    if (!accepted) {
+      newstate = PROPOSAL_STATES.REJECTED;
+    }
+    else {
+      if (proposal.state == PROPOSAL_STATES.IMPLEMENTATION) {
+        newstate = PROPOSAL_STATES.COMPLETED;
+      }
+      else if (proposal.state == PROPOSAL_STATES.RESEARCH) {
+        newstate = proposal.require_fund ? PROPOSAL_STATES.FUNDING : PROPOSAL_STATES.IMPLEMENTATION;
+      }
+    }
+    if (!newstate) throw 'Undetermined new state';
+    console.log('State change', accepted, proposal.state, '=>', newstate);
+
+    await repository.updateById(
+      proposalId,
+      {
+        state: newstate,
+      },
+      t
+    );
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+
+  t = await sequelize.transaction();
+  return await repository.findById(proposalId, t, false);
+};
+
 const updateStates = async () => {
   const proposals = (await repository.findAllWhere({
     state: {
@@ -134,5 +188,6 @@ const updateStates = async () => {
 module.exports = {
   findAllByPage,
   save,
+  update,
   updateStates,
 };

@@ -1,18 +1,13 @@
 "use strict";
 
 const config = require("config");
-const createError = require("http-errors");
 const { sequelize } = require("../models");
 const repository = require("../repositories/funds");
 const usersRepository = require("../repositories/users");
 const proposalsRepository = require("../repositories/proposals");
 const { assertNotBlackListed } = require("../utils/utils");
-const { BigNumber } = require("ethers");
-const DECIMALS = config.get("blockchain.ncat.decimals");
-const { PROPOSAL_STATES } = require("../models/Proposal");
-const { NCAT_PER_VOTE } = require("../models/User");
 
-const fund = async (funder, proposalId, txvalue) => {
+const fund = async (funder, proposalId, txHash, amount) => {
   assertNotBlackListed(funder);
 
   // validate transaction
@@ -33,20 +28,13 @@ const fund = async (funder, proposalId, txvalue) => {
   t = await sequelize.transaction();
   try {
     const proposal = await proposalsRepository.findById(proposalId, t, true);
-    // const now = new Date().getTime();
-    // if (
-    //   proposal.state !== PROPOSAL_STATES.FUNDING ||
-    //   now > proposal.expiration.getTime()
-    // ) {
-    //   throw createError(400, "Funding has ended");
-    // }
-
 
     await repository.save(
       {
         funderAddress: funder,
         proposalId,
-        amount: txvalue,
+        txHash,
+        amount,
       },
       t
     );
@@ -54,7 +42,7 @@ const fund = async (funder, proposalId, txvalue) => {
     await proposalsRepository.updateById(
       proposalId,
       {
-        raised_fund: proposal.raised_fund + txvalue,
+        raised_fund: proposal.raised_fund + amount,
         funders: Array.from(new Set(proposal.funders.concat(funder))),
       },
       t

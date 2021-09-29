@@ -1,20 +1,29 @@
 "use strict";
 
-const { request } = require('express');
 const jwt = require('jsonwebtoken');
 const jwtauth = require('../middleware/jwtauth');
 const { isValidAddress } = require("../utils/blockchain");
 const accessTokenSecret = process.env.JWT_SECRET;
+const { sequelize } = require("../models");
+const usersRepository = require("../repositories/users");
 
 module.exports = (app, logger) => {
-  app.get('/login', (req, res, next) => {
+  app.get('/login', async (req, res, next) => {
     var address = req.query.address.trim().toLowerCase();
     if (!isValidAddress(address)) {
-      next(createError(400, "Invalid address"));
-      return;
+      return next(createError(400, "Invalid address"));
     }
+
+    let user = { isAdmin: false };
+    let t = await sequelize.transaction();
+    try {
+      user = await usersRepository.findByAddress(address, t, true);
+    } catch (error) {
+      throw error;
+    }
+
     var token = jwt.sign({ address: address }, accessTokenSecret);
-    res.json({ token, address });
+    res.json({ token, address, a: user.isAdmin });
   });
 
   app.use("/proposals", jwtauth, require("./proposals"));

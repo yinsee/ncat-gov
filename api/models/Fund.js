@@ -27,6 +27,10 @@ module.exports = {
             key: "id",
           },
         },
+        txHash: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
         amount: {
           type: DataTypes.DOUBLE,
           allowNull: false,
