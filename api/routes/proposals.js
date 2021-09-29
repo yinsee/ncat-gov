@@ -5,6 +5,7 @@ const logger = require("../utils/logger");
 const { isValidAddress } = require("../utils/blockchain");
 const { findAllByPage, save, update } = require("../services/proposals");
 const { fund } = require("../services/funds");
+const { vote } = require("../services/votes");
 
 const createError = require("http-errors");
 const { check, validationResult } = require("express-validator");
@@ -99,7 +100,6 @@ router.post("/fund", async (req, res, next) => {
   const transaction = req.body.transaction;
   const receipt = req.body.receipt;
 
-  // todo: validate tx
   if (!transaction || !receipt ||
     transaction.from !== receipt.from ||
     transaction.hash !== receipt.transactionHash ||
@@ -109,6 +109,7 @@ router.post("/fund", async (req, res, next) => {
     return next(createError(400, "transaction is invalid"));
   }
 
+  // todo: validate tx in blockchain
 
   if (!funder) {
     return next(createError(400, "address is not specified"));
