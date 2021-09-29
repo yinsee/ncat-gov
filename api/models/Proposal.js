@@ -83,7 +83,7 @@ module.exports = {
 
         target_fund: { type: DataTypes.BIGINT, allowNull: true, defaultValue: 0 },
         require_fund: { type: DataTypes.BOOLEAN, allowNull: true, defaultValue: false },
-        raised_fund: { type: DataTypes.BIGINT, allowNull: true, defaultValue: 0 },
+        raised_fund: { type: DataTypes.DOUBLE, allowNull: true, defaultValue: 0 },
         funders: {
           type: DataTypes.ARRAY(DataTypes.STRING),
           defaultValue: [],

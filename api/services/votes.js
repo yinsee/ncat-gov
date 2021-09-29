@@ -61,7 +61,7 @@ const vote = async (voter, proposalId, support) => {
       await proposalsRepository.updateById(
         proposalId,
         {
-          ...proposal,
+          // ...proposal,
           for: BigNumber.from(proposal.for).add(userWeight).toHexString(),
           voters: proposal.voters.concat(voter),
         },
@@ -71,10 +71,8 @@ const vote = async (voter, proposalId, support) => {
       await proposalsRepository.updateById(
         proposalId,
         {
-          ...proposal,
-          against: BigNumber.from(proposal.against)
-            .add(userWeight)
-            .toHexString(),
+          // ...proposal,
+          against: BigNumber.from(proposal.against).add(userWeight).toHexString(),
           voters: proposal.voters.concat(voter),
         },
         t

@@ -14,7 +14,6 @@ module.exports = {
         funderAddress: {
           type: DataTypes.STRING,
           allowNull: false,
-          unique: "compositeIndex",
           references: {
             model: "users",
             key: "address",
@@ -23,14 +22,13 @@ module.exports = {
         proposalId: {
           type: DataTypes.INTEGER,
           allowNull: false,
-          unique: "compositeIndex",
           references: {
             model: "proposals",
             key: "id",
           },
         },
         amount: {
-          type: DataTypes.BIGINT,
+          type: DataTypes.DOUBLE,
           allowNull: false,
         },
       },

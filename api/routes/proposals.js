@@ -4,10 +4,11 @@ const router = require("express").Router();
 const logger = require("../utils/logger");
 const { isValidAddress } = require("../utils/blockchain");
 const { findAllByPage, save } = require("../services/proposals");
-const { vote } = require("../services/votes");
+const { fund } = require("../services/funds");
 
 const createError = require("http-errors");
 const { check, validationResult } = require("express-validator");
+const { blockchain } = require("../config/default");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -84,6 +85,47 @@ router.get("/vote", async (req, res, next) => {
 
   try {
     const proposal = await vote(voter, proposalId, support);
+    res.json({ message: "success", proposal });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post("/fund", async (req, res, next) => {
+  const funder = req.user.address;
+  const proposalId = req.query.proposalId;
+  const transaction = req.body.transaction;
+  const receipt = req.body.receipt;
+
+  // todo: validate tx
+  if (!transaction || !receipt ||
+    transaction.from !== receipt.from ||
+    transaction.hash !== receipt.transactionHash ||
+    transaction.to !== receipt.to ||
+    transaction.chainId !== blockchain.chainId
+  ) {
+    next(createError(400, "transaction is invalid"));
+  }
+
+
+  if (!funder) {
+    next(createError(400, "address is not specified"));
+  }
+  if (proposalId === undefined) {
+    next(createError(400, "proposalId is not specified"));
+  }
+
+  logger.info(
+    `${funder} is funded proposal: ${proposalId}`
+  );
+  logger.info(transaction);
+  logger.info(receipt);
+
+  if (!isValidAddress(funder)) next(createError(400, "Invalid address"));
+
+  try {
+    const txvalue = BigNumber.from(transaction.value.hex).div(10 ** 9) / (10 ** 9);
+    const proposal = await fund(funder, proposalId, txvalue);
     res.json({ message: "success", proposal });
   } catch (e) {
     next(e);

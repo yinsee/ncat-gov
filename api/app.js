@@ -41,9 +41,13 @@ app.get('/', jwtauth, (req, res) => {
 
 // Synchronize DB
 models.sequelize.sync().then(async () => {
-  //listeners.enableAll();
+  // listeners.enableAll();
   jobs.startAll();
   app.listen(appPort, () => {
     logger.info(`App is listening on port ${appPort}`);
   });
+
+  // run once
+  const updateProposals = require("./jobs/update-proposals");
+  updateProposals();
 });

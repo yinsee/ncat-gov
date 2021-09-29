@@ -25,6 +25,7 @@ module.exports = {
   },
   blockchain: {
     network: "https://bsc-dataseed.binance.org/",
+    chainId: process.env.CHAIN_ID || 56,
     blacklisted: [].map((a) => a.toLowerCase()), // blacklisted addresses
     ncat: {
       address: "0x0cf011a946f23a03ceff92a4632d5f9288c6c70d",

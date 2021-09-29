@@ -4,7 +4,7 @@ const cron = require("node-cron");
 const updateProposals = require("./update-proposals");
 
 // Every hour
-const everyHour = "* * * * *";
+const everyHour = "0 * * * *";
 
 const jobs = {
   updateProposals: cron.schedule(everyHour, updateProposals),
@@ -25,6 +25,7 @@ const stop = (job) => {
 module.exports = {
   startAll: () => {
     for (const job in jobs) {
+      console.log('Starting job', job);
       start(job);
     }
   },
