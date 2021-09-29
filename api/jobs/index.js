@@ -4,7 +4,7 @@ const cron = require("node-cron");
 const updateProposals = require("./update-proposals");
 
 // Every hour
-const everyHour = "0 * * * *";
+const everyHour = "* * * * *";
 
 const jobs = {
   updateProposals: cron.schedule(everyHour, updateProposals),

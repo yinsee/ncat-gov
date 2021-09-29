@@ -67,12 +67,12 @@ const save = async (proposal) => {
 
 const updateStates = async () => {
   const proposals = (await repository.findAllWhere({
-    // state: {
-    //   [Op.notIn]: [
-    //     PROPOSAL_STATES.COMPLETED,
-    //     PROPOSAL_STATES.REJECTED,
-    //   ]
-    // }
+    state: {
+      [Op.notIn]: [
+        PROPOSAL_STATES.COMPLETED,
+        PROPOSAL_STATES.REJECTED,
+      ]
+    }
   }));
   const now = new Date().getTime();
   const t = await sequelize.transaction();
