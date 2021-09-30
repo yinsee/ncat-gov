@@ -81,7 +81,7 @@ module.exports = {
         has_expire: { type: DataTypes.BOOLEAN, allowNull: true, defaultValue: false },
         expire_date: { type: DataTypes.DATE, allowNull: true },
 
-        target_fund: { type: DataTypes.BIGINT, allowNull: true, defaultValue: 0 },
+        target_fund: { type: DataTypes.DOUBLE, allowNull: true, defaultValue: 0 },
         require_fund: { type: DataTypes.BOOLEAN, allowNull: true, defaultValue: false },
         raised_fund: { type: DataTypes.DOUBLE, allowNull: true, defaultValue: 0 },
         funders: {
