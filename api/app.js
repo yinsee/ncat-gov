@@ -12,6 +12,8 @@ const cors = require("cors");
 const compression = require('compression');
 
 const models = require("./models");
+const { numberformat, shortaddress } = require('./utils/utils');
+
 const logger = require("./utils/logger");
 const listeners = require("./listeners");
 const jobs = require("./jobs");
