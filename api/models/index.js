@@ -11,7 +11,7 @@ const sequelize = new Sequelize(
     host: config.get("db.host"),
     dialect: config.get("db.dialect"),
     logging: config.get("db.logs"),
-    operatorsAliases: false,
+    // operatorsAliases: false,
     pool: {
       max: config.get("db.pool.max"),
       min: config.get("db.pool.min"),

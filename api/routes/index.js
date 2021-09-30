@@ -6,6 +6,7 @@ const { isValidAddress } = require("../utils/blockchain");
 const accessTokenSecret = process.env.JWT_SECRET;
 const { sequelize } = require("../models");
 const usersRepository = require("../repositories/users");
+const createError = require("http-errors");
 
 module.exports = (app, logger) => {
   app.get('/login', async (req, res, next) => {

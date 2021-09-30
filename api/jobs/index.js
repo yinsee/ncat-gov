@@ -7,26 +7,26 @@ const updateProposals = require("./update-proposals");
 const everyHour = "* * * * *";
 
 const jobs = {
-  updateProposals: cron.schedule(everyHour, updateProposals),
+  updateProposals: (app) => cron.schedule(everyHour, () => updateProposals(app)),
 };
 
-const start = (job) => {
+const start = (job, app) => {
   if (Object.hasOwnProperty.call(jobs, job)) {
-    jobs[job].start();
+    jobs[job](app).start();
   } else throw new Error("Unknown job");
 };
 
 const stop = (job) => {
   if (Object.hasOwnProperty.call(jobs, job)) {
-    jobs[job].stop();
+    jobs[job]().stop();
   } else throw new Error("Unknown job");
 };
 
 module.exports = {
-  startAll: () => {
+  startAll: (app) => {
     for (const job in jobs) {
       console.log('Starting job', job);
-      start(job);
+      start(job, app);
     }
   },
   stopAll: () => {
@@ -34,6 +34,6 @@ module.exports = {
       stop(job);
     }
   },
-  start,
-  stop,
+  // start,
+  // stop,
 };

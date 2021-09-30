@@ -119,7 +119,7 @@ const update = async (address, proposalId, accepted) => {
   return await repository.findById(proposalId, t, false);
 };
 
-const updateStates = async () => {
+const updateStates = async (app) => {
   const proposals = (await repository.findAllWhere({
     state: {
       [Op.notIn]: [
@@ -142,6 +142,10 @@ const updateStates = async () => {
         // check expire date
         if (now > proposal.expire_date.getTime()) {
           console.log('expired', proposal.expire_date);
+
+          proposal.state = PROPOSAL_STATES.REJECTED;
+          app.io.emit('proposal', proposal);
+
           return repository.updateById(proposal.id, { state: PROPOSAL_STATES.REJECTED }, t);
         }
       }
@@ -156,6 +160,10 @@ const updateStates = async () => {
               ? PROPOSAL_STATES.RESEARCH
               : PROPOSAL_STATES.REJECTED;
             console.log(proposal.id, forVotes.toNumber(), '+', againstVotes.toNumber(), '=', totalVotes.toNumber(), '=>', forVotes.mul(100).div(totalVotes).toNumber(), forVotes.mul(100).div(totalVotes).gte(REQUIRE_PERCENTAGE), forVotes.gte(REQUIRE_WEIGHT));
+
+            proposal.state = newState;
+            app.io.emit('proposal', proposal);
+
             return repository.updateById(proposal.id, { state: newState }, t);
           }
           break;
@@ -168,6 +176,10 @@ const updateStates = async () => {
           // check due date & fund raised
           if (Number(proposal.raised_fund) >= (Number(proposal.target_fund))) {
             console.log('funded', proposal.raised_fund);
+
+            proposal.state = PROPOSAL_STATES.IMPLEMENTATION;
+            app.io.emit('proposal', proposal);
+
             return repository.updateById(proposal.id, { state: PROPOSAL_STATES.IMPLEMENTATION }, t);
           }
           break;
@@ -178,7 +190,9 @@ const updateStates = async () => {
       }
     })
   )
-    .then(() => t.commit())
+    .then(() => {
+      t.commit();
+    })
     .catch((err) => {
       logger.error("Unexpected error when updating proposals: %O", err);
       return t.rollback();

@@ -88,6 +88,7 @@ router.get("/vote", async (req, res, next) => {
 
   try {
     const proposal = await vote(voter, proposalId, support);
+    req.app.io.emit('proposal', proposal);
     res.json({ message: "success", proposal });
   } catch (e) {
     next(e);
@@ -127,6 +128,7 @@ router.post("/fund", async (req, res, next) => {
   try {
     const txvalue = BigNumber.from(transaction.value.hex).div(10 ** 9) / (10 ** 9);
     const proposal = await fund(funder, proposalId, transaction.hash, txvalue);
+    req.app.io.emit('proposal', proposal);
     res.json({ message: "success", proposal });
   } catch (e) {
     next(e);
@@ -141,6 +143,7 @@ router.post("/state", async (req, res, next) => {
   if (!isValidAddress(user)) return next(createError(400, "Invalid address"));
   try {
     const proposal = await update(user, proposalId, accepted);
+    req.app.io.emit('proposal', proposal);
     res.json({ message: "success", proposal });
   } catch (e) {
     next(e);

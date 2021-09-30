@@ -3,7 +3,7 @@
 const logger = require("../utils/logger");
 const { updateStates } = require("../services/proposals");
 
-module.exports = async () => {
+module.exports = async (app) => {
   logger.info("Updating proposals...");
-  await updateStates();
+  await updateStates(app);
 };
