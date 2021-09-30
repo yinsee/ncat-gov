@@ -166,7 +166,7 @@ const updateStates = async () => {
 
         case PROPOSAL_STATES.FUNDING:
           // check due date & fund raised
-          if (Number(proposal.raised_fund) > (Number(proposal.target_fund))) {
+          if (Number(proposal.raised_fund) >= (Number(proposal.target_fund))) {
             console.log('funded', proposal.raised_fund);
             return repository.updateById(proposal.id, { state: PROPOSAL_STATES.IMPLEMENTATION }, t);
           }
