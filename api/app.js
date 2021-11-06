@@ -67,8 +67,8 @@ io.on('connection', function (socket) {
   console.log('client connected', socket.id);
 
   // send socket id to client upon connection
-  socket.emit('message', 'NCAT NCAT NCAT!');
-  socket.broadcast.emit('message', socket.id + ' joined the Clowder. NCAT Army grow stronger!');
+  socket.emit('message', 'Meow!');
+  // socket.broadcast.emit('message', socket.id + ' joined the Clowder. NCAT Army grow stronger!');
 
   // socket.on('message', function (data) {
   //   // todo: handle message
@@ -77,9 +77,9 @@ io.on('connection', function (socket) {
   //   io.emit(json.type, json.data);
   // });
 
-  socket.on('disconnect', function () {
-    socket.broadcast.emit('message', socket.id + ' has left the Clowder. HODL it!');
-  });
+  // socket.on('disconnect', function () {
+  //   socket.broadcast.emit('message', socket.id + ' has left the Clowder. HODL it!');
+  // });
 });
 
 // Synchronize DB
