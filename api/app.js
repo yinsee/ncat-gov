@@ -18,6 +18,8 @@ const logger = require("./utils/logger");
 const listeners = require("./listeners");
 const jobs = require("./jobs");
 const jwtauth = require("./middleware/jwtauth");
+const { getTokenPrice } = require("./utils/blockchain");
+const { BigNumber } = require("@ethersproject/bignumber");
 const accessLogStream = rfs.createStream("access.log", {
   interval: config.get("logging.rotation"),
   path: path.join(__dirname, config.get("logging.folder")),
@@ -82,12 +84,23 @@ io.on('connection', function (socket) {
   // });
 });
 
+// price updater
+var price = 0;
+function updatePrice() {
+  getTokenPrice(BigNumber.from(1).mul(10 ** 9)).then((r) => {
+    price = r[2].toNumber() / 10 ** 18;
+    console.log('Price', price.toFixed(12));
+    app.io.emit('price', price.toFixed(12));
+  });
+}
+
 // Synchronize DB
 models.sequelize.sync().then(async () => {
   // listeners.enableAll();
   jobs.startAll(app);
   server.listen(appPort, () => {
     logger.info(`App is listening on port ${appPort}`);
+    updatePrice();
   });
 
   // run once
@@ -105,14 +118,17 @@ listeners.start((res) => {
       if (res.from == process.env.BLOCKCHAIN_LP_ADDRESS) {
         console.log('🟢', amount);
         app.io.emit('message', '🟢' + shortaddress(res.to) + ' bought ' + numberformat(amount / 10 ** 6) + 'M NCAT');
+        updatePrice();
       }
       else if (res.to == process.env.BLOCKCHAIN_LP_ADDRESS) {
         console.log('🔴', amount);
         app.io.emit('message', '🔴' + shortaddress(res.from) + ' sold ' + numberformat(amount / 10 ** 6) + 'M NCAT');
+        updatePrice();
       }
       else if (res.to == process.env.BLOCKCHAIN_BURN_ADDRESS) {
         console.log('🔥', amount);
         app.io.emit('message', '🔥' + shortaddress(res.from) + ' burned ' + numberformat(amount / 10 ** 6) + 'M NCAT');
+        updatePrice();
         // User.findOneAndUpdate({ address: res.from.toLowerCase() }, { $inc: { balance: amount } }, async (err, user) => {
         // check credit and top up if user exists
         //     if (user && !err) app.io.emit('player', { address: user.address });

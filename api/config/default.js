@@ -32,5 +32,10 @@ module.exports = {
       decimals: 9,
       abi: require("./NCAT.json"),
     },
+    router: {
+      address: "0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F",
+      decimals: 18,
+      abi: require("./pcs_v1.json"),
+    },
   },
 };
