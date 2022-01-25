@@ -15,9 +15,8 @@ module.exports = (app, logger) => {
       return next(createError(400, "Invalid address"));
     }
 
-    let t = await sequelize.transaction();
     try {
-      let user = await usersRepository.findByAddress(address, t, true);
+      let user = await usersRepository.findByAddress(address, null, true);
       var token = jwt.sign({ address: address }, accessTokenSecret);
       res.json({ token, address, a: user ? user.isAdmin : false });
     } catch (error) {

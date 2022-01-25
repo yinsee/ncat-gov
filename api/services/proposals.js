@@ -69,9 +69,8 @@ const update = async (address, proposalId, accepted) => {
 
   // validate transaction
   let user;
-  let t = await sequelize.transaction();
   try {
-    user = await usersRepository.findByAddress(address, t, true);
+    user = await usersRepository.findByAddress(address, null, true);
     if (!user || !user.isAdmin) {
       throw 'Invalid user';
     }
@@ -79,7 +78,7 @@ const update = async (address, proposalId, accepted) => {
     throw error;
   }
 
-  t = await sequelize.transaction();
+  let t = await sequelize.transaction();
   try {
     const proposal = await repository.findById(proposalId, t, true);
     if (proposal.state != PROPOSAL_STATES.RESEARCH && proposal.state != PROPOSAL_STATES.IMPLEMENTATION) {
@@ -115,8 +114,7 @@ const update = async (address, proposalId, accepted) => {
     throw error;
   }
 
-  t = await sequelize.transaction();
-  return await repository.findById(proposalId, t, false);
+  return await repository.findById(proposalId, null, false);
 };
 
 const updateStates = async (app) => {

@@ -84,8 +84,7 @@ const vote = async (voter, proposalId, support) => {
     throw error;
   }
 
-  t = await sequelize.transaction();
-  return await proposalsRepository.findById(proposalId, t, false);
+  return await proposalsRepository.findById(proposalId, null, false);
 };
 
 module.exports = {
