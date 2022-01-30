@@ -136,21 +136,12 @@ const updateStates = async (app) => {
       FUNDING: "Funding",
       IMPLEMENTATION: "Implementation",
       */
-      if (proposal.has_expire) {
-        // check expire date
-        if (now > proposal.expire_date.getTime()) {
-          console.log('expired', proposal.expire_date);
 
-          proposal.state = PROPOSAL_STATES.REJECTED;
-          app.io.emit('proposal', proposal);
-
-          return repository.updateById(proposal.id, { state: PROPOSAL_STATES.REJECTED }, t);
-        }
-      }
+      let expired = (proposal.has_expire && now > proposal.expire_date.getTime());
 
       switch (proposal.state) {
         case PROPOSAL_STATES.VOTING:
-          if (now > proposal.expiration.getTime()) {
+          if (now > proposal.expiration.getTime() || expired) {
             const forVotes = BigNumber.from(proposal.for);
             const againstVotes = BigNumber.from(proposal.against);
             const totalVotes = BigNumber.from(proposal.for).add(proposal.against);
@@ -185,6 +176,16 @@ const updateStates = async (app) => {
         case PROPOSAL_STATES.IMPLEMENTATION:
           // do nothing
           break;
+      }
+
+
+      if (expired) {
+        console.log('expired', proposal.expire_date);
+
+        proposal.state = PROPOSAL_STATES.REJECTED;
+        app.io.emit('proposal', proposal);
+
+        return repository.updateById(proposal.id, { state: PROPOSAL_STATES.REJECTED }, t);
       }
     })
   )
